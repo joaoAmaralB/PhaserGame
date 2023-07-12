@@ -1,5 +1,3 @@
-import Phaser from "phaser";
-
 const createPlayerAnims = (anims) => {
     anims.create({
         key: 'player_idle',

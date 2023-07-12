@@ -4,11 +4,24 @@ import { createPlayerAnims } from "../anims/PlayerAnims";
 import BigDemon from "../enemies/BigDemon";
 import Player from "../character/Player";
 import { sceneEvents } from "../events/EventsCenter";
+import EnemyFollowPlayer from "../utils/EnemyFollowPlayer";
+import { createMidDemonAnims } from "../anims/MidDemonAnims";
+import { createMiniDemonAnims } from "../anims/MiniDemonAnims";
+import { createDinoAnims } from "../anims/DinoAnims";
+import { createOrcAnims } from "../anims/OrcAnims";
+import MidDemon from "../enemies/MidDemon";
+import MiniDemon from "../enemies/MiniDemon";
+import Dino from "../enemies/Dino";
+import Orc from "../enemies/Orc";
 
 export default class Game extends Phaser.Scene {
   cursors;
   player;
   bigDemons;
+  midDemons;
+  miniDemons;
+  dinos;
+  orcs;
   projectile;
 
   playerEnemiesCollider;
@@ -26,6 +39,10 @@ export default class Game extends Phaser.Scene {
 
     createPlayerAnims(this.anims);
     createBigDemonAnims(this.anims);
+    createMidDemonAnims(this.anims);
+    createMiniDemonAnims(this.anims);
+    createDinoAnims(this.anims);
+    createOrcAnims(this.anims);
 
     const map = this.make.tilemap({ key: "dungeon" });
     const tileset = map.addTilesetImage("dungeon", "tiles");
@@ -46,7 +63,28 @@ export default class Game extends Phaser.Scene {
       classType: BigDemon,
     });
 
+    this.midDemons = this.physics.add.group({
+      classType: MidDemon,
+    });
+
+    this.miniDemons = this.physics.add.group({
+      classType: MiniDemon,
+    });
+
+    this.dinos = this.physics.add.group({
+      classType: Dino,
+    });
+
+    this.orcs = this.physics.add.group({
+      classType: Orc,
+    });
+
+
     this.bigDemons.get(208, 208, "big-demon");
+    this.midDemons.get(308, 208, "mid-demon");
+    this.miniDemons.get(408, 208, "mini-demon");
+    this.dinos.get(508, 108, "dino");
+    this.orcs.get(608, 108, "orc");
 
     this.physics.add.collider(this.player, wallsLayer);
     this.playerEnemiesCollider = this.physics.add.collider(
@@ -57,7 +95,13 @@ export default class Game extends Phaser.Scene {
       this
     );
     this.physics.add.collider(this.bigDemons, wallsLayer);
-    this.physics.add.collider(this.projectile, wallsLayer, this.handleProjectileWallsCollision, undefined, this);
+    this.physics.add.collider(
+      this.projectile,
+      wallsLayer,
+      this.handleProjectileWallsCollision,
+      undefined,
+      this
+    );
     this.physics.add.collider(
       this.projectile,
       this.bigDemons,
@@ -98,19 +142,10 @@ export default class Game extends Phaser.Scene {
   update(t, dt) {
     this.player.update(this.cursors);
 
-    this.bigDemons.getChildren().forEach((bigDemon) => {
-      bigDemon.update();
-      const distance = Phaser.Math.Distance.Between(
-        bigDemon.x,
-        bigDemon.y,
-        this.player.x,
-        this.player.y
-      );
-      if (distance < 150 && this.player.health > 0) {
-        this.physics.moveToObject(bigDemon, this.player, 40);
-      } else {
-        bigDemon.body.stop();
-      }
-    });
+    EnemyFollowPlayer(this.bigDemons, this.player, this, 40);
+    EnemyFollowPlayer(this.midDemons, this.player, this, 45);
+    EnemyFollowPlayer(this.miniDemons, this.player, this, 50);
+    EnemyFollowPlayer(this.dinos, this.player, this, 45);
+    EnemyFollowPlayer(this.orcs, this.player, this, 40);
   }
 }

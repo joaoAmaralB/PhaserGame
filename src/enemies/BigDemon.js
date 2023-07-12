@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 
 export default class BigDemon extends Phaser.Physics.Arcade.Sprite {
+    damage = 3;
+
     constructor(scene, x, y, texture, frame) {
         super(scene, x, y, texture, frame)
 

@@ -18,13 +18,13 @@ const createPlayerAnims = (anims) => {
     anims.create({
         key: 'player_shoot',
         frames: anims.generateFrameNumbers('player', {start: 88, end: 91}),
-        frameRate: 10
+        frameRate: 6
     })
 
     anims.create({
         key: 'player_death',
         frames: anims.generateFrameNumbers('player', {start: 96, end: 102}),
-        frameRate: 10
+        frameRate: 6
     })
 }
 

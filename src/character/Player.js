@@ -91,9 +91,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
       case HealthState.DAMAGE:
         this.damageTime += dt;
-        if (this.damageTime > 250) {
+        if (this.damageTime > 300) {
           this.healthState = HealthState.IDLE;
-          this.setTint(0xffffff);
+          this.setTint(0xFFFFFF);
         }
         break;
 

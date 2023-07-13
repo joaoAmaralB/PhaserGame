@@ -94,7 +94,40 @@ export default class Game extends Phaser.Scene {
       undefined,
       this
     );
+    this.playerEnemiesCollider = this.physics.add.collider(
+      this.player,
+      this.midDemons,
+      this.handlePlayerCollision,
+      undefined,
+      this
+    );
+    this.playerEnemiesCollider = this.physics.add.collider(
+      this.player,
+      this.miniDemons,
+      this.handlePlayerCollision,
+      undefined,
+      this
+    );
+    this.playerEnemiesCollider = this.physics.add.collider(
+      this.player,
+      this.dinos,
+      this.handlePlayerCollision,
+      undefined,
+      this
+    );
+    this.playerEnemiesCollider = this.physics.add.collider(
+      this.player,
+      this.orcs,
+      this.handlePlayerCollision,
+      undefined,
+      this
+    );
+
     this.physics.add.collider(this.bigDemons, wallsLayer);
+    this.physics.add.collider(this.midDemons, wallsLayer);
+    this.physics.add.collider(this.miniDemons, wallsLayer);
+    this.physics.add.collider(this.dinos, wallsLayer);
+    this.physics.add.collider(this.orcs, wallsLayer);
     this.physics.add.collider(
       this.projectile,
       wallsLayer,
@@ -109,6 +142,35 @@ export default class Game extends Phaser.Scene {
       undefined,
       this
     );
+    this.physics.add.collider(
+      this.projectile,
+      this.midDemons,
+      this.handleProjectileEnemyCollision,
+      undefined,
+      this
+    );
+    this.physics.add.collider(
+      this.projectile,
+      this.miniDemons,
+      this.handleProjectileEnemyCollision,
+      undefined,
+      this
+    );
+    this.physics.add.collider(
+      this.projectile,
+      this.dinos,
+      this.handleProjectileEnemyCollision,
+      undefined,
+      this
+    );
+    this.physics.add.collider(
+      this.projectile,
+      this.orcs,
+      this.handleProjectileEnemyCollision,
+      undefined,
+      this
+    );
+
 
     this.cameras.main.startFollow(this.player, true);
   }

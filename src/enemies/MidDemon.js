@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 
 export default class MidDemon extends Phaser.Physics.Arcade.Sprite {
-    damage = 2;
+    damage = 1;
 
     constructor(scene, x, y, texture, frame) {
         super(scene, x, y, texture, frame)

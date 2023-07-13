@@ -17,7 +17,6 @@ import Orc from "../enemies/Orc";
 export default class Game extends Phaser.Scene {
   cursors;
   player;
-  bigDemons;
   midDemons;
   miniDemons;
   dinos;
@@ -56,12 +55,8 @@ export default class Game extends Phaser.Scene {
 
     wallsLayer.setCollisionByProperty({ collides: true });
 
-    this.player = new Player(this, 128, 128, "player-idle");
+    this.player = new Player(this, 58, 128, "player-idle");
     this.player.setProjectile(this.projectile);
-
-    this.bigDemons = this.physics.add.group({
-      classType: BigDemon,
-    });
 
     this.midDemons = this.physics.add.group({
       classType: MidDemon,
@@ -79,21 +74,15 @@ export default class Game extends Phaser.Scene {
       classType: Orc,
     });
 
-
-    this.bigDemons.get(208, 208, "big-demon");
     this.midDemons.get(308, 208, "mid-demon");
     this.miniDemons.get(408, 208, "mini-demon");
+    this.miniDemons.get(408, 108, "mini-demon");
+    this.dinos.get(558, 108, "dino");
     this.dinos.get(508, 108, "dino");
+    this.dinos.get(508, 208, "dino");
     this.orcs.get(608, 108, "orc");
 
     this.physics.add.collider(this.player, wallsLayer);
-    this.playerEnemiesCollider = this.physics.add.collider(
-      this.player,
-      this.bigDemons,
-      this.handlePlayerCollision,
-      undefined,
-      this
-    );
     this.playerEnemiesCollider = this.physics.add.collider(
       this.player,
       this.midDemons,
@@ -123,7 +112,6 @@ export default class Game extends Phaser.Scene {
       this
     );
 
-    this.physics.add.collider(this.bigDemons, wallsLayer);
     this.physics.add.collider(this.midDemons, wallsLayer);
     this.physics.add.collider(this.miniDemons, wallsLayer);
     this.physics.add.collider(this.dinos, wallsLayer);
@@ -132,13 +120,6 @@ export default class Game extends Phaser.Scene {
       this.projectile,
       wallsLayer,
       this.handleProjectileWallsCollision,
-      undefined,
-      this
-    );
-    this.physics.add.collider(
-      this.projectile,
-      this.bigDemons,
-      this.handleProjectileEnemyCollision,
       undefined,
       this
     );
@@ -177,7 +158,7 @@ export default class Game extends Phaser.Scene {
 
   handleProjectileEnemyCollision(projectile, enemy) {
     this.projectile.killAndHide(projectile);
-    this.bigDemons.killAndHide(enemy);
+    projectile.body.enable = false;
     enemy.body.enable = false;
   }
 
@@ -204,7 +185,6 @@ export default class Game extends Phaser.Scene {
   update(t, dt) {
     this.player.update(this.cursors);
 
-    EnemyFollowPlayer(this.bigDemons, this.player, this, 40);
     EnemyFollowPlayer(this.midDemons, this.player, this, 45);
     EnemyFollowPlayer(this.miniDemons, this.player, this, 50);
     EnemyFollowPlayer(this.dinos, this.player, this, 45);

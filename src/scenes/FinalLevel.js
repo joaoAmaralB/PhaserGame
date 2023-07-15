@@ -9,6 +9,7 @@ import { createMiniDemonAnims } from "../anims/MiniDemonAnims";
 import BigDemon from "../enemies/BigDemon";
 import MidDemon from "../enemies/MidDemon";
 import MiniDemon from "../enemies/MiniDemon";
+import Coin from "../character/Coin";
 
 export default class LevelOne extends Phaser.Scene {
   cursors;
@@ -17,11 +18,21 @@ export default class LevelOne extends Phaser.Scene {
   midDemons;
   miniDemons;
   projectile;
+  coins;
+  playerCoins;
+  playerHealth;
 
   playerEnemiesCollider;
 
   constructor() {
     super("final-lvl");
+  }
+
+  init(data) {
+    this.data = data;
+
+    this.playerCoins = this.data.get("coins");
+    this.playerHealth = this.data.get("health");
   }
 
   preload() {
@@ -30,6 +41,9 @@ export default class LevelOne extends Phaser.Scene {
 
   create() {
     this.scene.run("game-ui");
+
+    sceneEvents.emit("player-coins-changed", this.playerCoins);
+    sceneEvents.emit("player-health-changed", 0);
 
     createPlayerAnims(this.anims);
     createBigDemonAnims(this.anims);
@@ -42,11 +56,11 @@ export default class LevelOne extends Phaser.Scene {
     map.createLayer("Ground", tileset, 0, 0);
     const wallsLayer = map.createLayer("Walls", tileset, 0, 0);
 
+    wallsLayer.setCollisionByProperty({ collides: true });
+
     this.projectile = this.physics.add.group({
       classType: Phaser.Physics.Arcade.Image,
     });
-
-    wallsLayer.setCollisionByProperty({ collides: true });
 
     this.player = new Player(this, 112, 54, "player-idle");
     this.player.setProjectile(this.projectile);
@@ -60,15 +74,18 @@ export default class LevelOne extends Phaser.Scene {
     });
 
     this.miniDemons = this.physics.add.group({
-        classType: MiniDemon,
-      });
+      classType: MiniDemon,
+    });
+
+    this.coins = this.physics.add.group({
+      classType: Coin,
+    });
 
     this.projectile.damage = 1;
 
     this.bigDemon.get(480, 344, "big-demon").setScale(2);
 
     this.physics.add.collider(this.player, wallsLayer);
-
 
     this.physics.add.collider(
       this.projectile,
@@ -79,6 +96,12 @@ export default class LevelOne extends Phaser.Scene {
     );
 
     this.cameras.main.startFollow(this.player, true);
+
+    this.player.coins = this.playerCoins;
+
+    this.player.health = this.playerHealth;
+    console.log(this.player.health);
+    sceneEvents.emit("player-health-new-level", this.player.health);
   }
 
   handleProjectileEnemyCollision(projectile, enemy) {
@@ -122,6 +145,6 @@ export default class LevelOne extends Phaser.Scene {
   update(t, dt) {
     this.player.update(this.cursors);
 
-    EnemyFollowPlayer(this.bigDemon, this.player, this, 40);
+    EnemyFollowPlayer(this.bigDemon, this.player, this, 40, 200);
   }
 }

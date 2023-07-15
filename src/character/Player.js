@@ -12,6 +12,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   damageTime = 0;
   health = 9;
   projectile;
+  coins = 0;
 
   constructor(scene, x, y, texture, frame) {
     super(scene, x, y, texture, frame);
@@ -79,7 +80,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     projectile.setVisible(true);
 
     projectile.setRotation(angle);
-    projectile.setVelocity(vec.x * 300, vec.y * 200);
+    projectile.setVelocity(vec.x * 250, vec.y * 200);
   }
 
   preUpdate(t, dt) {

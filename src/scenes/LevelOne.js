@@ -9,6 +9,8 @@ import Dino from "../enemies/Dino";
 import Orc from "../enemies/Orc";
 import { createCoinAnims } from "../anims/CoinAnims";
 import Coin from "../character/Coin";
+import Slug from "../enemies/Slug";
+import { createSlugAnims } from "../anims/SlugAnims";
 
 export default class LevelOne extends Phaser.Scene {
   cursors;
@@ -17,7 +19,8 @@ export default class LevelOne extends Phaser.Scene {
   orcs;
   projectile;
   door;
-  coins
+  slugs;
+  coins;
 
   playerEnemiesCollider;
 
@@ -36,6 +39,7 @@ export default class LevelOne extends Phaser.Scene {
     createPlayerAnims(this.anims);
     createDinoAnims(this.anims);
     createOrcAnims(this.anims);
+    createSlugAnims(this.anims);
 
     const map = this.make.tilemap({ key: "dungeon" });
     const tileset = map.addTilesetImage("dungeon", "tiles");
@@ -60,6 +64,10 @@ export default class LevelOne extends Phaser.Scene {
       classType: Orc,
     });
 
+    this.slugs = this.physics.add.group({
+      classType: Slug,
+    });
+
     this.coins = this.physics.add.group({
       classType: Coin,
     });
@@ -70,6 +78,8 @@ export default class LevelOne extends Phaser.Scene {
     this.dinos.get(408, 108, "dino");
     this.dinos.get(408, 208, "dino");
     this.orcs.get(608, 108, "orc");
+    this.slugs.get(608, 308, "slug");
+    this.slugs.get(678, 408, "slug");
 
     this.door = this.add.rectangle(816, 84, 40, 5, 0xffffff);
     this.physics.world.enable(this.door);
@@ -124,16 +134,32 @@ export default class LevelOne extends Phaser.Scene {
       this
     );
 
+    this.physics.add.overlap(
+      this.player,
+      this.coins,
+      this.handlePlayerCoinsOverlap,
+      undefined,
+      this
+    );
+
     this.cameras.main.startFollow(this.player, true);
   }
 
-  handleDoorCollision() {
+  handlePlayerCoinsOverlap(player, coin) {
+    coin.destroy(true);
+    player.coins += coin.value;
+    sceneEvents.emit("player-coins-changed", player.coins);
+  }
+
+  handleDoorCollision(player, door) {
     this.add.image(816, 34, "botao").setScale(0.5);
 
     const X = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
 
     if (Phaser.Input.Keyboard.JustDown(X)) {
-      this.scene.start("final-lvl");
+      this.data.set("coins", player.coins);
+      this.data.set("health", player.health);
+      this.scene.start("final-lvl", this.data);
     }
   }
 
@@ -146,7 +172,7 @@ export default class LevelOne extends Phaser.Scene {
     enemy.handleDamage(this.projectile.damage);
 
     if (enemy.health <= 0) {
-      this.coins.get(enemy.x, enemy.y, 'coin')
+      this.coins.get(enemy.x, enemy.y, "coin");
       enemy.destroy(true);
     }
   }
@@ -170,7 +196,8 @@ export default class LevelOne extends Phaser.Scene {
   update(t, dt) {
     this.player.update(this.cursors);
 
-    EnemyFollowPlayer(this.dinos, this.player, this, 45);
-    EnemyFollowPlayer(this.orcs, this.player, this, 40);
+    EnemyFollowPlayer(this.dinos, this.player, this, 45, 150);
+    EnemyFollowPlayer(this.orcs, this.player, this, 40, 150);
+    EnemyFollowPlayer(this.slugs, this.player, this, -15, 70);
   }
 }

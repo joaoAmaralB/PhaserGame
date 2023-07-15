@@ -46,6 +46,11 @@ export default class Preloader extends Phaser.Scene {
       frameHeight: 7,
     });
 
+    this.load.spritesheet("slug", "./enemies/slug.png", {
+      frameWidth: 16,
+      frameHeight: 23,
+    });
+
     this.load.image("projectile", "./projectile/01.png");
     this.load.image("botao", "./ui/botao.png");
   }

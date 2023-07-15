@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 
-import Game from './scenes/Game'
+import LevelOne from './scenes/LevelOne'
+import FinalLevel from './scenes/FinalLevel'
 import Preloader from './scenes/Preloader'
 import GameUi from './scenes/GameUI'
 
@@ -15,10 +16,10 @@ export default new Phaser.Game({
 		default: 'arcade',
 		arcade: {
 			gravity: { y: 0 },
-			debug: true
+			debug: false
 		},
 	},
-	scene: [Preloader, Game, GameUi],
+	scene: [Preloader, LevelOne, FinalLevel, GameUi],
 	scale: {
 		zoom: 2
 	}

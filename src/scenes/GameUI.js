@@ -14,6 +14,9 @@ export default class GameUi extends Phaser.Scene {
         this.health.setFrame(9)
         this.healthNum = 9
 
+        const coins = this.add.sprite(15, 35, 'coin').setScale(1.1)
+        coins.setFrame(0)
+
         sceneEvents.on('player-health-changed', this.handleHealthChange, this)
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {

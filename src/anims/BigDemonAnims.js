@@ -1,5 +1,3 @@
-import Phaser from "phaser";
-
 const createBigDemonAnims = (anims) => {
     anims.create({
         key: 'big-demon_idle',

@@ -79,7 +79,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     projectile.setVisible(true);
 
     projectile.setRotation(angle);
-    projectile.setVelocity(vec.x * 350, vec.y * 200);
+    projectile.setVelocity(vec.x * 300, vec.y * 200);
   }
 
   preUpdate(t, dt) {

@@ -1,31 +1,27 @@
 import Phaser from "phaser";
-import { createBigDemonAnims } from "../anims/BigDemonAnims";
 import { createPlayerAnims } from "../anims/PlayerAnims";
 import Player from "../character/Player";
 import { sceneEvents } from "../events/EventsCenter";
-import EnemyFollowPlayer from "../utils/EnemyFollowPlayer";
-import { createMidDemonAnims } from "../anims/MidDemonAnims";
-import { createMiniDemonAnims } from "../anims/MiniDemonAnims";
-import BigDemon from "../enemies/BigDemon";
-import MidDemon from "../enemies/MidDemon";
-import MiniDemon from "../enemies/MiniDemon";
 import Coin from "../items/Coin";
+import { createFoxAnims } from "../anims/MerchantFoxAnims";
+import { createChestAnims } from "../anims/ChestAnims";
+import Fox from "../npcs/MerchantFox";
+import Chest from "../items/Chest";
 
 export default class LevelOne extends Phaser.Scene {
   cursors;
   player;
-  bigDemon;
-  midDemons;
-  miniDemons;
+  fox;
   projectile;
   coins;
+  door;
   playerCoins;
   playerHealth;
 
   playerEnemiesCollider;
 
   constructor() {
-    super("final-lvl");
+    super("lvl-two");
   }
 
   init(data) {
@@ -45,12 +41,13 @@ export default class LevelOne extends Phaser.Scene {
     sceneEvents.emit("player-coins-changed", this.playerCoins);
     sceneEvents.emit("player-health-changed", 0);
 
+    //Anims
     createPlayerAnims(this.anims);
-    createBigDemonAnims(this.anims);
-    createMidDemonAnims(this.anims);
-    createMiniDemonAnims(this.anims);
+    createFoxAnims(this.anims);
+    createChestAnims(this.anims);
 
-    const map = this.make.tilemap({ key: "dungeon2" });
+    //Map
+    const map = this.make.tilemap({ key: "dungeon3" });
     const tileset = map.addTilesetImage("dungeon", "tiles");
 
     map.createLayer("Ground", tileset, 0, 0);
@@ -58,24 +55,38 @@ export default class LevelOne extends Phaser.Scene {
 
     wallsLayer.setCollisionByProperty({ collides: true });
 
+    //Chests
+    const chests = this.physics.add.staticGroup({
+      classType: Chest,
+    });
+
+    const chestOverlap = this.physics.add.group();
+
+    const chestLayer = map.getObjectLayer("Chests");
+    chestLayer.objects.forEach((chestObj) => {
+      chests.get(chestObj.x + 9, chestObj.y - 9, "chest");
+      const rectangle = this.add.rectangle(
+        chestObj.x + 9,
+        chestObj.y,
+        16,
+        16,
+        0xffffff
+      );
+      this.physics.world.enable(rectangle);
+      rectangle.setVisible(false);
+
+      chestOverlap.add(rectangle);
+    });
+
     this.projectile = this.physics.add.group({
       classType: Phaser.Physics.Arcade.Image,
     });
 
-    this.player = new Player(this, 112, 54, "player-idle");
+    //Player
+    this.player = new Player(this, 130, 200, "player-idle");
     this.player.setProjectile(this.projectile);
 
-    this.bigDemon = this.physics.add.group({
-      classType: BigDemon,
-    });
-
-    this.midDemons = this.physics.add.group({
-      classType: MidDemon,
-    });
-
-    this.miniDemons = this.physics.add.group({
-      classType: MiniDemon,
-    });
+    this.fox = new Fox(this, 385, 125, "idle_fox");
 
     this.coins = this.physics.add.group({
       classType: Coin,
@@ -83,7 +94,10 @@ export default class LevelOne extends Phaser.Scene {
 
     this.projectile.damage = 1;
 
-    this.bigDemon.get(480, 344, "big-demon").setScale(2);
+    //Door
+    this.door = this.add.rectangle(818, 199, 40, 5, 0xffffff);
+    this.physics.world.enable(this.door);
+    this.door.setVisible(false);
 
     this.physics.add.collider(this.player, wallsLayer);
 
@@ -95,6 +109,17 @@ export default class LevelOne extends Phaser.Scene {
       this
     );
 
+    this.physics.add.collider(this.player, chests);
+    this.physics.add.overlap(this.player, chestOverlap, this.handlePlayerChestOVerlap, undefined, this);
+
+    this.physics.add.overlap(
+      this.player,
+      this.door,
+      this.handleDoorCollision,
+      undefined,
+      this
+    );
+
     this.cameras.main.startFollow(this.player, true);
 
     this.player.coins = this.playerCoins;
@@ -102,6 +127,26 @@ export default class LevelOne extends Phaser.Scene {
     this.player.health = this.playerHealth;
     console.log(this.player.health);
     sceneEvents.emit("player-health-new-level", this.player.health);
+  }
+
+  handlePlayerChestOVerlap(player, chest) {
+    const X = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+
+    if (Phaser.Input.Keyboard.JustDown(X)) {
+      chest.open();
+    }
+  }
+
+  handleDoorCollision(player, door) {
+    this.add.image(815, 145, "botao").setScale(0.5);
+
+    const X = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+
+    if (Phaser.Input.Keyboard.JustDown(X)) {
+      this.data.set("coins", player.coins);
+      this.data.set("health", player.health);
+      this.scene.start("final-lvl", this.data);
+    }
   }
 
   handleProjectileEnemyCollision(projectile, enemy) {
@@ -145,6 +190,14 @@ export default class LevelOne extends Phaser.Scene {
   update(t, dt) {
     this.player.update(this.cursors);
 
-    EnemyFollowPlayer(this.bigDemon, this.player, this, 40, 200);
+    if (this.player.x > this.fox.x) {
+      this.time.delayedCall(50, () => {
+        this.fox.flipX = true;
+      });
+    } else {
+      this.time.delayedCall(50, () => {
+        this.fox.flipX = false;
+      });
+    }
   }
 }

@@ -8,9 +8,10 @@ import { createOrcAnims } from "../anims/OrcAnims";
 import Dino from "../enemies/Dino";
 import Orc from "../enemies/Orc";
 import { createCoinAnims } from "../anims/CoinAnims";
-import Coin from "../character/Coin";
+import Coin from "../items/Coin";
 import Slug from "../enemies/Slug";
 import { createSlugAnims } from "../anims/SlugAnims";
+import SlugPotion from "../items/SlugPotion";
 
 export default class LevelOne extends Phaser.Scene {
   cursors;
@@ -21,6 +22,7 @@ export default class LevelOne extends Phaser.Scene {
   door;
   slugs;
   coins;
+  potions;
 
   playerEnemiesCollider;
 
@@ -51,6 +53,10 @@ export default class LevelOne extends Phaser.Scene {
       classType: Phaser.Physics.Arcade.Image,
     });
 
+    this.potions = this.physics.add.group({
+      classType: SlugPotion,
+    });
+
     wallsLayer.setCollisionByProperty({ collides: true });
 
     this.player = new Player(this, 58, 128, "player-idle");
@@ -74,12 +80,12 @@ export default class LevelOne extends Phaser.Scene {
 
     this.projectile.damage = 1;
 
-    this.dinos.get(458, 108, "dino");
-    this.dinos.get(408, 108, "dino");
-    this.dinos.get(408, 208, "dino");
+    //this.dinos.get(458, 108, "dino");
+    //this.dinos.get(408, 108, "dino");
+    //this.dinos.get(408, 208, "dino");
     this.orcs.get(608, 108, "orc");
     this.slugs.get(608, 308, "slug");
-    this.slugs.get(678, 408, "slug");
+    this.slugs.get(658, 378, "slug");
 
     this.door = this.add.rectangle(816, 84, 40, 5, 0xffffff);
     this.physics.world.enable(this.door);
@@ -104,6 +110,7 @@ export default class LevelOne extends Phaser.Scene {
 
     this.physics.add.collider(this.dinos, wallsLayer);
     this.physics.add.collider(this.orcs, wallsLayer);
+    this.physics.add.collider(this.slugs, wallsLayer);
     this.physics.add.collider(
       this.projectile,
       wallsLayer,
@@ -125,6 +132,13 @@ export default class LevelOne extends Phaser.Scene {
       undefined,
       this
     );
+    this.physics.add.collider(
+      this.projectile,
+      this.slugs,
+      this.handleProjectileSlugCollision,
+      undefined,
+      this
+    );
 
     this.physics.add.overlap(
       this.player,
@@ -142,7 +156,31 @@ export default class LevelOne extends Phaser.Scene {
       this
     );
 
+    this.physics.add.overlap(
+      this.player,
+      this.potions,
+      this.handlePlayerPotionCollide,
+      undefined,
+      this
+    );
+
     this.cameras.main.startFollow(this.player, true);
+  }
+
+  handlePlayerPotionCollide(player, potion) {
+    player.handleHeal(potion.heal);
+    sceneEvents.emit("player-heal", player.health);
+    potion.destroy();
+  }
+
+  handleProjectileSlugCollision(projectile, enemy) {
+    projectile.destroy(true);
+    enemy.handleDamage(this.projectile.damage);
+
+    if (enemy.health <= 0) {
+      this.potions.get(enemy.x, enemy.y, "slug-potion");
+      enemy.destroy(true);
+    }
   }
 
   handlePlayerCoinsOverlap(player, coin) {
@@ -159,7 +197,7 @@ export default class LevelOne extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(X)) {
       this.data.set("coins", player.coins);
       this.data.set("health", player.health);
-      this.scene.start("final-lvl", this.data);
+      this.scene.start("lvl-two", this.data);
     }
   }
 
@@ -198,6 +236,6 @@ export default class LevelOne extends Phaser.Scene {
 
     EnemyFollowPlayer(this.dinos, this.player, this, 45, 150);
     EnemyFollowPlayer(this.orcs, this.player, this, 40, 150);
-    EnemyFollowPlayer(this.slugs, this.player, this, -15, 70);
+    EnemyFollowPlayer(this.slugs, this.player, this, -10, 70);
   }
 }

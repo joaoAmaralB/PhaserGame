@@ -5,6 +5,7 @@ const HealthState = {
   DAMAGE: "DAMAGE",
   DEAD: "DEAD",
   SHOOTING: "SHOOTING",
+  HEAL: "HEAL",
 };
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
@@ -34,6 +35,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   setProjectile(projectile) {
     this.projectile = projectile;
+  }
+
+  handleHeal(heal) {
+    if (this.health > 9) {
+      return;
+    }
+
+    this.health += heal;
+
+    this.setTint(0x4CFD4C);
+
+    this.healthState = HealthState.HEAL;
+    this.damageTime = 0;
   }
 
   handleDamage(dir, damage) {
@@ -72,7 +86,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     const angle = vec.angle();
     const projectile = this.projectile
-      .get(this.x + (10 * vec.x), this.y + 8, "projectile")
+      .get(this.x + 10 * vec.x, this.y + 8, "projectile")
       .setScale(0.3);
     projectile.setSize(projectile.width * 0.2, projectile.height * 0.2);
 
@@ -94,15 +108,23 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.damageTime += dt;
         if (this.damageTime > 300) {
           this.healthState = HealthState.IDLE;
-          this.setTint(0xFFFFFF);
+          this.setTint(0xffffff);
+        }
+        break;
+
+      case HealthState.HEAL:
+        this.damageTime += dt;
+        if (this.damageTime > 400) {
+          this.healthState = HealthState.IDLE;
+          this.setTint(0xffffff);
         }
         break;
 
       case HealthState.SHOOTING:
         this.anims.play("player_shoot", true);
         this.setVelocity(0, 0);
-        this.shootProjectile()
-        this.healthState = HealthState.IDLE
+        this.shootProjectile();
+        this.healthState = HealthState.IDLE;
     }
   }
 
@@ -133,7 +155,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.anims.play("player_run", true);
       this.setVelocity(0, speed);
     } else if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
-      this.healthState = HealthState.SHOOTING
+      this.healthState = HealthState.SHOOTING;
     } else {
       this.anims.play("player_idle", true);
       this.setVelocity(0, 0);

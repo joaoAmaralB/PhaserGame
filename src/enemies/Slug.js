@@ -6,7 +6,6 @@ const HealthState = {
 };
 
 export default class Slug extends Phaser.Physics.Arcade.Sprite {
-  damage = 2;
   healthState = HealthState.IDLE;
   damageTime = 0;
   health = 3;
@@ -16,8 +15,8 @@ export default class Slug extends Phaser.Physics.Arcade.Sprite {
 
     scene.physics.world.enable(this);
     scene.add.existing(this);
-    this.body.setSize(this.width * 0.7, this.height * 0.8);
-    this.body.setOffset(9, 9);
+    this.body.setSize(this.width * 0.6, this.height * 0.6);
+    this.body.setOffset(12, 15);
 
     this.anims.play("slug_anim", true);
   }

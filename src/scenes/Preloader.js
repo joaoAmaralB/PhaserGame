@@ -9,6 +9,7 @@ export default class Preloader extends Phaser.Scene {
     this.load.image("tiles", "./tiles/dungeon_tiles.png");
     this.load.tilemapTiledJSON("dungeon", "./tiles/dungeon-01.json");
     this.load.tilemapTiledJSON("dungeon2", "./tiles/dungeon-02.json");
+    this.load.tilemapTiledJSON("dungeon3", "./tiles/dungeon-03.json");
 
     this.load.spritesheet("player", "./character/players.png", {
       frameWidth: 32,
@@ -51,7 +52,18 @@ export default class Preloader extends Phaser.Scene {
       frameHeight: 23,
     });
 
+    this.load.spritesheet("fox", "./npcs/merchant.png", {
+      frameWidth: 158,
+      frameHeight: 158,
+    });
+
+    this.load.spritesheet("chest", "./items/chest.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+
     this.load.image("projectile", "./projectile/01.png");
+    this.load.image("slug-potion", "./items/flask_green.png");
     this.load.image("botao", "./ui/botao.png");
   }
 

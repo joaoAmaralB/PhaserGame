@@ -14,6 +14,7 @@ export default class LevelOne extends Phaser.Scene {
   fox;
   projectile;
   coins;
+  chests
   door;
   playerCoins;
   playerHealth;
@@ -56,18 +57,20 @@ export default class LevelOne extends Phaser.Scene {
     wallsLayer.setCollisionByProperty({ collides: true });
 
     //Chests
-    const chests = this.physics.add.staticGroup({
+    this.chests = this.physics.add.staticGroup({
       classType: Chest,
     });
 
-    const chestOverlap = this.physics.add.group();
+    const chestCollider = this.physics.add.group({
+      immovable: true
+    });
 
     const chestLayer = map.getObjectLayer("Chests");
     chestLayer.objects.forEach((chestObj) => {
-      chests.get(chestObj.x + 9, chestObj.y - 9, "chest");
+      this.chests.get(chestObj.x + 9, chestObj.y - 9, "chest");
       const rectangle = this.add.rectangle(
         chestObj.x + 9,
-        chestObj.y,
+        chestObj.y - 9,
         16,
         16,
         0xffffff
@@ -75,8 +78,12 @@ export default class LevelOne extends Phaser.Scene {
       this.physics.world.enable(rectangle);
       rectangle.setVisible(false);
 
-      chestOverlap.add(rectangle);
+      chestCollider.add(rectangle);
     });
+
+    this.chests.getChildren().forEach((chest) => {
+      chest.body.setOffset(0, 16)
+    })
 
     this.projectile = this.physics.add.group({
       classType: Phaser.Physics.Arcade.Image,
@@ -109,8 +116,8 @@ export default class LevelOne extends Phaser.Scene {
       this
     );
 
-    this.physics.add.collider(this.player, chests);
-    this.physics.add.overlap(this.player, chestOverlap, this.handlePlayerChestOVerlap, undefined, this);
+    this.physics.add.overlap(this.player, this.chests, this.handlePlayerChestOpen, undefined, this);
+    this.physics.add.collider(this.player, chestCollider);
 
     this.physics.add.overlap(
       this.player,
@@ -129,7 +136,7 @@ export default class LevelOne extends Phaser.Scene {
     sceneEvents.emit("player-health-new-level", this.player.health);
   }
 
-  handlePlayerChestOVerlap(player, chest) {
+  handlePlayerChestOpen(player, chest) {
     const X = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
 
     if (Phaser.Input.Keyboard.JustDown(X)) {
@@ -154,8 +161,8 @@ export default class LevelOne extends Phaser.Scene {
     enemy.body.enable = false;
   }
 
-  handleProjectileWallsCollision(projectile) {
-    this.projectile.killAndHide(projectile);
+  handleProjectileWallsCollision(projectile, walls) {
+    projectile.destroy()
   }
 
   handleOrcCollision(projectile, enemy) {

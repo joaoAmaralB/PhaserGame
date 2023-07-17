@@ -37,6 +37,10 @@ export default class LevelOne extends Phaser.Scene {
   create() {
     this.scene.run("game-ui");
 
+    sceneEvents.on("restart-level", () => {
+      this.scene.restart();
+    });
+
     createCoinAnims(this.anims);
     createPlayerAnims(this.anims);
     createDinoAnims(this.anims);
@@ -80,10 +84,10 @@ export default class LevelOne extends Phaser.Scene {
 
     this.projectile.damage = 1;
 
-    //this.dinos.get(458, 108, "dino");
+    this.dinos.get(458, 108, "dino");
     //this.dinos.get(408, 108, "dino");
     //this.dinos.get(408, 208, "dino");
-    this.orcs.get(608, 108, "orc");
+    //this.orcs.get(608, 108, "orc");
     this.slugs.get(608, 308, "slug");
     this.slugs.get(658, 378, "slug");
 
@@ -165,6 +169,19 @@ export default class LevelOne extends Phaser.Scene {
     );
 
     this.cameras.main.startFollow(this.player, true);
+
+    sceneEvents.on("player-death", () => {
+      // Escureça a tela gradualmente ao longo de 1 segundo
+      this.tweens.add({
+        targets: this.player.darkOverlay,
+        alpha: 0.7,
+        duration: 1000,
+        onComplete: () => {
+          // Quando a tela estiver completamente escura, após 1 segundo, exiba o texto de reinício
+          this.player.restartText.setVisible(true);
+        },
+      });
+    });
   }
 
   handlePlayerPotionCollide(player, potion) {
@@ -197,6 +214,7 @@ export default class LevelOne extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(X)) {
       this.data.set("coins", player.coins);
       this.data.set("health", player.health);
+      this.scene.stop("lvl-one");
       this.scene.start("lvl-two", this.data);
     }
   }
@@ -226,8 +244,8 @@ export default class LevelOne extends Phaser.Scene {
     sceneEvents.emit("player-health-changed", enemy.damage);
 
     if (this.player.health <= 0) {
-      this.playerEnemiesCollider.destroy();
       this.player.body.stop();
+      //this.scene.pause()
     }
   }
 

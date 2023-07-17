@@ -45,6 +45,10 @@ export default class LevelOne extends Phaser.Scene {
     sceneEvents.emit("player-coins-changed", this.playerCoins);
     sceneEvents.emit("player-health-changed", 0);
 
+    sceneEvents.on('restart-level', () => {
+      this.scene.restart()
+    })
+
     createPlayerAnims(this.anims);
     createBigDemonAnims(this.anims);
     createMidDemonAnims(this.anims);
@@ -86,11 +90,62 @@ export default class LevelOne extends Phaser.Scene {
     this.bigDemon.get(480, 344, "big-demon").setScale(2);
 
     this.physics.add.collider(this.player, wallsLayer);
+    this.physics.add.collider(this.bigDemon, wallsLayer);
+    this.physics.add.collider(this.midDemons, wallsLayer);
+    this.physics.add.collider(this.miniDemons, wallsLayer);
+
+    this.physics.add.collider(
+      this.player,
+      this.bigDemon,
+      this.handlePlayerCollision,
+      undefined,
+      this
+    );
+
+    this.physics.add.collider(
+      this.player,
+      this.midDemons,
+      this.handlePlayerCollision,
+      undefined,
+      this
+    );
+
+    this.physics.add.collider(
+      this.player,
+      this.miniDemons,
+      this.handlePlayerCollision,
+      undefined,
+      this
+    );
 
     this.physics.add.collider(
       this.projectile,
       wallsLayer,
       this.handleProjectileWallsCollision,
+      undefined,
+      this
+    );
+
+    this.physics.add.collider(
+      this.projectile,
+      this.bigDemon,
+      this.handleProjectileBigEnemyCollision,
+      undefined,
+      this
+    );
+
+    this.physics.add.collider(
+      this.projectile,
+      this.midDemons,
+      this.handleProjectileMidEnemyCollision,
+      undefined,
+      this
+    );
+
+    this.physics.add.collider(
+      this.projectile,
+      this.miniDemons,
+      this.handleProjectileMiniEnemyCollision,
       undefined,
       this
     );
@@ -101,28 +156,54 @@ export default class LevelOne extends Phaser.Scene {
 
     this.player.health = this.playerHealth;
     console.log(this.player.health);
-    sceneEvents.emit("player-health-new-level", this.player.health);
-  }
 
-  handleProjectileEnemyCollision(projectile, enemy) {
-    this.projectile.killAndHide(projectile);
-    enemy.body.enable = false;
+    sceneEvents.on("player-death", () => {
+      // Escureça a tela gradualmente ao longo de 1 segundo
+      this.tweens.add({
+        targets: this.player.darkOverlay,
+        alpha: 0.7,
+        duration: 1000,
+        onComplete: () => {
+          // Quando a tela estiver completamente escura, após 1 segundo, exiba o texto de reinício
+          this.player.restartText.setVisible(true);
+        },
+      });
+    });
   }
 
   handleProjectileWallsCollision(projectile) {
-    this.projectile.killAndHide(projectile);
+    projectile.destroy();
   }
 
-  handleOrcCollision(projectile, enemy) {
-    const dx = enemy.x - projectile.x;
-    const dy = enemy.y - projectile.y;
-
-    const dir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
-
-    enemy.handleDamage(dir, projectile.damage);
+  handleProjectileBigEnemyCollision(projectile, enemy) {
+    projectile.destroy(true);
+    enemy.handleDamage(this.projectile.damage);
 
     if (enemy.health <= 0) {
-      enemy.body.enable = false;
+      this.midDemons.get(enemy.x - 10, enemy.y, "mid-demon");
+      this.midDemons.get(enemy.x + 10, enemy.y, "mid-demon");
+      enemy.destroy(true);
+    }
+  }
+
+  handleProjectileMidEnemyCollision(projectile, enemy) {
+    projectile.destroy(true);
+    enemy.handleDamage(this.projectile.damage);
+
+    if (enemy.health <= 0) {
+      this.miniDemons.get(enemy.x - 20, enemy.y + 20, "mini-demon");
+      this.miniDemons.get(enemy.x + 20, enemy.y + 20, "mini-demon");
+      enemy.destroy(true);
+    }
+  }
+
+  handleProjectileMiniEnemyCollision(projectile, enemy) {
+    projectile.destroy(true);
+    enemy.handleDamage(this.projectile.damage);
+
+    if (enemy.health <= 0) {
+      this.coins.get(enemy.x, enemy.y, "coin");
+      enemy.destroy(true);
     }
   }
 
@@ -137,14 +218,16 @@ export default class LevelOne extends Phaser.Scene {
     sceneEvents.emit("player-health-changed", enemy.damage);
 
     if (this.player.health <= 0) {
-      this.playerEnemiesCollider.destroy();
       this.player.body.stop();
+      //this.scene.pause()
     }
   }
 
   update(t, dt) {
     this.player.update(this.cursors);
 
-    EnemyFollowPlayer(this.bigDemon, this.player, this, 40, 200);
+    EnemyFollowPlayer(this.bigDemon, this.player, this, 30, 200);
+    EnemyFollowPlayer(this.midDemons, this.player, this, 40, 200);
+    EnemyFollowPlayer(this.miniDemons, this.player, this, 45, 200);
   }
 }

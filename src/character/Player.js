@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { sceneEvents } from "../events/EventsCenter";
 
 const HealthState = {
   IDLE: "IDLE",
@@ -14,6 +15,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   health = 9;
   projectile;
   coins = 0;
+
+  restartText;
+  darkOverlay;
 
   constructor(scene, x, y, texture, frame) {
     super(scene, x, y, texture, frame);
@@ -44,20 +48,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.health += heal;
 
-    this.setTint(0x4CFD4C);
+    this.setTint(0x4cfd4c);
 
     this.healthState = HealthState.HEAL;
     this.damageTime = 0;
   }
 
   handleDamage(dir, damage) {
-    if (this.health <= 0) {
-      return;
-    }
-
     if (this.healthState === HealthState.DAMAGE) {
       return;
     }
+
+    this.healthState = HealthState.DAMAGE;
+    this.damageTime = 0;
 
     this.health = this.health - damage;
 
@@ -65,14 +68,38 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.healthState = HealthState.DEAD;
       this.scene.cameras.main.zoomTo(1.5, 100);
       this.anims.play("player_death");
-    } else {
-      this.setVelocity(dir.x, dir.y);
 
-      this.setTint(0xe34b4b);
+      this.darkOverlay = this.scene.add.rectangle(
+        0,
+        0,
+        Number(this.scene.cameras.main.width),
+        Number(this.scene.cameras.main.height),
+        0x000000
+      );
+      this.darkOverlay.setOrigin(0);
+      this.darkOverlay.setAlpha(0); // Defina a transparência inicialmente como 0
 
-      this.healthState = HealthState.DAMAGE;
-      this.damageTime = 0;
+      // Crie um texto para exibir a mensagem de reinício
+      this.restartText = this.scene.add.text(
+        Number(this.scene.cameras.main.width) / 2 + 10,
+        Number(this.scene.cameras.main.height) / 2,
+        "REINICAR JOGO",
+        {
+          fontSize: "12px",
+          color: "#ffffff",
+        }
+      ).setInteractive().on('pointerdown', () => {
+        sceneEvents.emit('restart-level');
+      });
+      this.restartText.setOrigin(0.5);
+      this.restartText.setVisible(false);
+      sceneEvents.emit("player-death");
+      return;
     }
+
+    this.setVelocity(dir.x, dir.y);
+
+    this.setTint(0xe34b4b);
   }
 
   shootProjectile() {

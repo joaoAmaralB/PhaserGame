@@ -21,6 +21,8 @@ export default class LevelOne extends Phaser.Scene {
   coins;
   playerCoins;
   playerHealth;
+  playerSpeed
+  projectileDamage
 
   playerEnemiesCollider;
 
@@ -33,6 +35,9 @@ export default class LevelOne extends Phaser.Scene {
 
     this.playerCoins = this.data.get("coins");
     this.playerHealth = this.data.get("health");
+    this.playerSpeed = this.data.get("speed");
+    this.projectileDamage = this.data.get("projectileDamage");
+    console.log('Damage' + this.projectileDamage);
   }
 
   preload() {
@@ -49,7 +54,6 @@ export default class LevelOne extends Phaser.Scene {
       this.scene.restart()
     })
 
-    createPlayerAnims(this.anims);
     createBigDemonAnims(this.anims);
     createMidDemonAnims(this.anims);
     createMiniDemonAnims(this.anims);
@@ -85,7 +89,7 @@ export default class LevelOne extends Phaser.Scene {
       classType: Coin,
     });
 
-    this.projectile.damage = 1;
+    this.projectile.damage = this.projectileDamage;
 
     this.bigDemon.get(480, 344, "big-demon").setScale(2);
 
@@ -155,7 +159,8 @@ export default class LevelOne extends Phaser.Scene {
     this.player.coins = this.playerCoins;
 
     this.player.health = this.playerHealth;
-    console.log(this.player.health);
+
+    this.player.speed = this.playerSpeed;
 
     sceneEvents.on("player-death", () => {
       // Escureça a tela gradualmente ao longo de 1 segundo

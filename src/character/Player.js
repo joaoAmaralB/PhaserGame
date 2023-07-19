@@ -7,6 +7,8 @@ const HealthState = {
   DEAD: "DEAD",
   SHOOTING: "SHOOTING",
   HEAL: "HEAL",
+  SPEED: "SPEED",
+  DAMAGE_INCREASE: "DAMAGE_INCREASE"
 };
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
@@ -15,6 +17,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   health = 9;
   projectile;
   coins = 0;
+  speed = 120;
 
   restartText;
   darkOverlay;
@@ -41,13 +44,30 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.projectile = projectile;
   }
 
+  handleDamageIncrease() {
+    this.setTint(0xEF8E38);
+
+    this.healthState = HealthState.DAMAGE_INCREASE;
+    this.damageTime = 0;
+  }
+
+  handleSpeed() {
+    this.speed += 20;
+
+    this.setTint(0xFBF24B);
+
+    this.healthState = HealthState.SPEED;
+    this.damageTime = 0;
+  }
+
   handleHeal(heal) {
     if (this.health > 9) {
-      return;
+      this.health = 9
     }
-
-    this.health += heal;
-
+    else {
+      this.health += heal;
+    }
+    
     this.setTint(0x4cfd4c);
 
     this.healthState = HealthState.HEAL;
@@ -147,11 +167,27 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
         break;
 
-      case HealthState.SHOOTING:
-        this.anims.play("player_shoot", true);
-        this.setVelocity(0, 0);
-        this.shootProjectile();
-        this.healthState = HealthState.IDLE;
+        case HealthState.SPEED:
+          this.damageTime += dt;
+          if (this.damageTime > 400) {
+            this.healthState = HealthState.IDLE;
+            this.setTint(0xffffff);
+          }
+          break;
+
+        case HealthState.DAMAGE_INCREASE:
+          this.damageTime += dt;
+          if (this.damageTime > 400) {
+            this.healthState = HealthState.IDLE;
+            this.setTint(0xffffff);
+          }
+        break;
+
+        case HealthState.SHOOTING:
+          this.anims.play("player_shoot", true);
+          this.setVelocity(0, 0);
+          this.shootProjectile();
+          this.healthState = HealthState.IDLE;
     }
   }
 
@@ -163,24 +199,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    const speed = 120;
-
     if (cursors.left.isDown) {
       this.anims.play("player_run", true);
       this.flipX = true;
-      this.setVelocity(-speed, 0);
+      this.setVelocity(-this.speed, 0);
       this.body.setOffset(9, 12);
     } else if (cursors.right.isDown) {
       this.anims.play("player_run", true);
       this.flipX = false;
-      this.setVelocity(speed, 0);
+      this.setVelocity(this.speed, 0);
       this.body.setOffset(8, 12);
     } else if (cursors.up.isDown) {
       this.anims.play("player_run", true);
-      this.setVelocity(0, -speed);
+      this.setVelocity(0, -this.speed);
     } else if (cursors.down.isDown) {
       this.anims.play("player_run", true);
-      this.setVelocity(0, speed);
+      this.setVelocity(0, this.speed);
     } else if (Phaser.Input.Keyboard.JustDown(cursors.space)) {
       this.healthState = HealthState.SHOOTING;
     } else {

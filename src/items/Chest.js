@@ -1,15 +1,15 @@
 import Phaser from "phaser";
 
 export default class Chest extends Phaser.Physics.Arcade.Sprite {
-  value;
+  value = 100;
+  id;
 
   constructor(scene, x, y, texture, frame) {
     super(scene, x, y, texture, frame);
 
-    //scene.physics.world.enable(this);
-    //scene.add.existing(this);
-    //this.body.setOffset(0, 16)
-
+    this.scene.add.sprite(this.x - 12, this.y - 16.5, "coin").setScale(1.1).setFrame(0);
+    
+    this.scene.add.text(this.x - 6, this.y - 24, "100").setFont('10');
   }
 
   open() {

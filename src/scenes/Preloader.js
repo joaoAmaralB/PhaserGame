@@ -65,6 +65,9 @@ export default class Preloader extends Phaser.Scene {
     this.load.image("projectile", "./projectile/01.png");
     this.load.image("slug-potion", "./items/flask_green.png");
     this.load.image("botao", "./ui/botao.png");
+    this.load.image('green_potion', './items/flask_big_green.png');
+    this.load.image('red_potion', './items/flask_big_red.png');
+    this.load.image('yellow_potion', './items/flask_big_yellow.png');
   }
 
   create() {

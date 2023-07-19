@@ -43,7 +43,6 @@ export default class LevelOne extends Phaser.Scene {
     sceneEvents.emit("player-health-changed", 0);
 
     //Anims
-    createPlayerAnims(this.anims);
     createFoxAnims(this.anims);
     createChestAnims(this.anims);
 
@@ -81,8 +80,9 @@ export default class LevelOne extends Phaser.Scene {
       chestCollider.add(rectangle);
     });
 
-    this.chests.getChildren().forEach((chest) => {
+    this.chests.getChildren().forEach((chest, index) => {
       chest.body.setOffset(0, 16)
+      chest.id = index
     })
 
     this.projectile = this.physics.add.group({
@@ -140,8 +140,62 @@ export default class LevelOne extends Phaser.Scene {
     const X = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
 
     if (Phaser.Input.Keyboard.JustDown(X)) {
+
+      console.log(player.coins)
+      if (player.coins < 100) {
+        return
+      }
+
       chest.open();
+
+      player.coins -= 100
+
+      sceneEvents.emit("player-coins-changed", player.coins);
+
+      this.time.delayedCall(300, () => {
+        switch (chest.id) {
+          case 0:
+            const potion0 = this.add.image(chest.x + 20, chest.y, 'yellow_potion')
+            this.physics.world.enable(potion0);
+            this.add.existing(potion0);
+            this.physics.add.collider(this.player, potion0, this.handleSpeedUp, undefined, this);
+            break;
+    
+          case 1:
+            const potion1 = this.add.image(chest.x + 20, chest.y, 'green_potion')
+            this.physics.world.enable(potion1);
+            this.add.existing(potion1);
+            this.physics.add.collider(this.player, potion1, this.handleHealthUp, undefined, this);
+            break;
+    
+          case 3:
+            const potion2 = this.add.image(chest.x + 20, chest.y, 'red_potion')
+            this.physics.world.enable(potion2);
+            this.add.existing(potion2);
+            this.physics.add.collider(this.player, potion2, this.handleDamageUp, undefined, this);
+            break;
+        }
+      })
     }
+  }
+
+  handleHealthUp(player, potion) {
+    player.handleHeal(9 - player.health)
+    sceneEvents.emit("player-heal", player.health);
+    potion.destroy()
+  }
+
+  handleSpeedUp(player, potion) {
+    player.handleSpeed()
+    this.data.set("speed", player.speed);
+    potion.destroy()
+  }
+
+  handleDamageUp(player, potion) {
+    this.projectile.damage = 2;
+    player.handleDamageIncrease()
+    this.data.set("projectileDamage", this.projectile.damage);
+    potion.destroy()
   }
 
   handleDoorCollision(player, door) {
@@ -152,6 +206,8 @@ export default class LevelOne extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(X)) {
       this.data.set("coins", player.coins);
       this.data.set("health", player.health);
+      this.data.set("projectileDamage", this.projectile.damage);
+      console.log('Damage' + this.projectile.damage);
       this.scene.start("final-lvl", this.data);
     }
   }
@@ -163,19 +219,6 @@ export default class LevelOne extends Phaser.Scene {
 
   handleProjectileWallsCollision(projectile, walls) {
     projectile.destroy()
-  }
-
-  handleOrcCollision(projectile, enemy) {
-    const dx = enemy.x - projectile.x;
-    const dy = enemy.y - projectile.y;
-
-    const dir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
-
-    enemy.handleDamage(dir, projectile.damage);
-
-    if (enemy.health <= 0) {
-      enemy.body.enable = false;
-    }
   }
 
   handlePlayerCollision(player, enemy) {

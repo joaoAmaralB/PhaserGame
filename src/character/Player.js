@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { sceneEvents } from "../events/EventsCenter";
+import axios from "axios";
 
 const HealthState = {
   IDLE: "IDLE",
@@ -38,6 +39,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       },
       this
     );
+  }
+
+  async postPoints(coins) {
+    axios.post('', coins);
   }
 
   setProjectile(projectile) {
@@ -114,6 +119,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.restartText.setOrigin(0.5);
       this.restartText.setVisible(false);
       sceneEvents.emit("player-death");
+
+      this.postPoints(this.coins)
       return;
     }
 

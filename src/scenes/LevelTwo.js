@@ -158,6 +158,16 @@ export default class LevelOne extends Phaser.Scene {
             const potion0 = this.add.image(chest.x + 20, chest.y, 'yellow_potion')
             this.physics.world.enable(potion0);
             this.add.existing(potion0);
+
+            this.tweens.add({
+              targets: potion0,
+              y: potion0.y + 5,
+              duration: 700,
+              ease: "Sine.easeInOut",
+              yoyo: true,
+              repeat: -1,
+            });
+
             this.physics.add.collider(this.player, potion0, this.handleSpeedUp, undefined, this);
             break;
     
@@ -165,6 +175,16 @@ export default class LevelOne extends Phaser.Scene {
             const potion1 = this.add.image(chest.x + 20, chest.y, 'green_potion')
             this.physics.world.enable(potion1);
             this.add.existing(potion1);
+
+            this.tweens.add({
+              targets: potion1,
+              y: potion1.y + 5,
+              duration: 700,
+              ease: "Sine.easeInOut",
+              yoyo: true,
+              repeat: -1,
+            });
+
             this.physics.add.collider(this.player, potion1, this.handleHealthUp, undefined, this);
             break;
     
@@ -172,6 +192,16 @@ export default class LevelOne extends Phaser.Scene {
             const potion2 = this.add.image(chest.x + 20, chest.y, 'red_potion')
             this.physics.world.enable(potion2);
             this.add.existing(potion2);
+
+            this.tweens.add({
+              targets: potion2,
+              y: potion2.y + 5,
+              duration: 700,
+              ease: "Sine.easeInOut",
+              yoyo: true,
+              repeat: -1,
+            });
+
             this.physics.add.collider(this.player, potion2, this.handleDamageUp, undefined, this);
             break;
         }

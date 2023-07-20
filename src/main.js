@@ -5,6 +5,8 @@ import LevelTwo from './scenes/LevelTwo'
 import FinalLevel from './scenes/FinalLevel'
 import Preloader from './scenes/Preloader'
 import GameUi from './scenes/GameUI'
+import InitialScene from './scenes/InitialScene'
+import PointsScene from './scenes/PointsScene'
 
 
 
@@ -20,7 +22,7 @@ export default new Phaser.Game({
 			debug: true
 		},
 	},
-	scene: [Preloader, LevelOne, LevelTwo, FinalLevel, GameUi],
+	scene: [Preloader, InitialScene, PointsScene, LevelOne, LevelTwo, FinalLevel, GameUi],
 	scale: {
 		zoom: 2
 	}

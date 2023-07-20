@@ -96,7 +96,7 @@ export default class LevelOne extends Phaser.Scene {
       classType: Coin,
     });
 
-    this.bigDemon.get(480, 344, "big-demon").setScale(2);
+    this.bigDemon.get(520, 344, "big-demon").setScale(2);
 
     this.physics.add.collider(this.player, wallsLayer);
     this.physics.add.collider(this.bigDemon, wallsLayer);
@@ -184,8 +184,8 @@ export default class LevelOne extends Phaser.Scene {
     enemy.handleDamage(this.projectile.damage);
 
     if (enemy.health <= 0) {
-      this.midDemons.get(enemy.x - 10, enemy.y, "mid-demon");
-      this.midDemons.get(enemy.x + 10, enemy.y, "mid-demon");
+      this.midDemons.get(enemy.x - 20, enemy.y, "mid-demon");
+      this.midDemons.get(enemy.x + 20, enemy.y, "mid-demon");
       enemy.destroy(true);
     }
   }

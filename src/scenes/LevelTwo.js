@@ -207,34 +207,15 @@ export default class LevelOne extends Phaser.Scene {
       this.data.set("coins", player.coins);
       this.data.set("health", player.health);
       this.data.set("projectileDamage", this.projectile.damage);
+      this.data.set("speed", player.speed)
       console.log('Damage' + this.projectile.damage);
+      this.scene.stop()
       this.scene.start("final-lvl", this.data);
     }
   }
 
-  handleProjectileEnemyCollision(projectile, enemy) {
-    this.projectile.killAndHide(projectile);
-    enemy.body.enable = false;
-  }
-
   handleProjectileWallsCollision(projectile, walls) {
     projectile.destroy()
-  }
-
-  handlePlayerCollision(player, enemy) {
-    const dx = player.x - enemy.x;
-    const dy = player.y - enemy.y;
-
-    const dir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
-
-    player.handleDamage(dir, enemy.damage);
-
-    sceneEvents.emit("player-health-changed", enemy.damage);
-
-    if (this.player.health <= 0) {
-      this.playerEnemiesCollider.destroy();
-      this.player.body.stop();
-    }
   }
 
   update(t, dt) {

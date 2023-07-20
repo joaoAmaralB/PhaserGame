@@ -192,6 +192,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   update(cursors) {
+    console.log('player-update')
+
     if (
       this.healthState === HealthState.DAMAGE ||
       this.healthState === HealthState.DEAD

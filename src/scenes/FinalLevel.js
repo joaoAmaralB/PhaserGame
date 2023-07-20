@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { createBigDemonAnims } from "../anims/BigDemonAnims";
-import { createPlayerAnims } from "../anims/PlayerAnims";
 import Player from "../character/Player";
 import { sceneEvents } from "../events/EventsCenter";
 import EnemyFollowPlayer from "../utils/EnemyFollowPlayer";
@@ -37,7 +36,8 @@ export default class LevelOne extends Phaser.Scene {
     this.playerHealth = this.data.get("health");
     this.playerSpeed = this.data.get("speed");
     this.projectileDamage = this.data.get("projectileDamage");
-    console.log('Damage' + this.projectileDamage);
+
+    console.log('Damage: ' + this.projectileDamage);
   }
 
   preload() {
@@ -49,10 +49,6 @@ export default class LevelOne extends Phaser.Scene {
 
     sceneEvents.emit("player-coins-changed", this.playerCoins);
     sceneEvents.emit("player-health-changed", 0);
-
-    sceneEvents.on('restart-level', () => {
-      this.scene.restart()
-    })
 
     createBigDemonAnims(this.anims);
     createMidDemonAnims(this.anims);
@@ -71,7 +67,18 @@ export default class LevelOne extends Phaser.Scene {
     });
 
     this.player = new Player(this, 112, 54, "player-idle");
+
+    this.player.coins = this.playerCoins;
+
+    this.player.health = this.playerHealth;
+
+    this.player.speed = this.playerSpeed;
+
+    this.cameras.main.startFollow(this.player, true);
+
     this.player.setProjectile(this.projectile);
+
+    this.projectile.damage = this.projectileDamage;
 
     this.bigDemon = this.physics.add.group({
       classType: BigDemon,
@@ -88,8 +95,6 @@ export default class LevelOne extends Phaser.Scene {
     this.coins = this.physics.add.group({
       classType: Coin,
     });
-
-    this.projectile.damage = this.projectileDamage;
 
     this.bigDemon.get(480, 344, "big-demon").setScale(2);
 
@@ -154,14 +159,6 @@ export default class LevelOne extends Phaser.Scene {
       this
     );
 
-    this.cameras.main.startFollow(this.player, true);
-
-    this.player.coins = this.playerCoins;
-
-    this.player.health = this.playerHealth;
-
-    this.player.speed = this.playerSpeed;
-
     sceneEvents.on("player-death", () => {
       // Escureça a tela gradualmente ao longo de 1 segundo
       this.tweens.add({
@@ -174,6 +171,8 @@ export default class LevelOne extends Phaser.Scene {
         },
       });
     });
+
+    console.log('tudo certo')
   }
 
   handleProjectileWallsCollision(projectile) {

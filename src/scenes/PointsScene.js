@@ -2,12 +2,20 @@ import axios from "axios";
 
 export default class PointsScene extends Phaser.Scene {
   points = [];
+  record;
 
   constructor() {
     super("points-scene");
 
     this.getPastPoints();
+    this.getRecord();
   }
+
+  getRecord = async () => {
+    const res = await axios.get("http://localhost:8800/record");
+    this.record = res.data;
+    console.log(this.record)
+  };
 
   getPastPoints = async () => {
     const res = await axios.get("http://localhost:8800/ranking");
@@ -26,6 +34,8 @@ export default class PointsScene extends Phaser.Scene {
   };
 
   create() {
+    this.add.text(240, 141, `RECORD:${this.record[0].max}`);
+
     this.add.text(125, 25, "YOUR PAST POINTS:");
 
     this.createPoint(this.points);

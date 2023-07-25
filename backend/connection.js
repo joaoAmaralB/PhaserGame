@@ -26,6 +26,16 @@ app.get("/ranking", (req, res) => {
   });
 });
 
+app.get("/record", (req, res) => {
+  const q = "SELECT max(pontos) as max FROM PONTUACAO";
+
+  db.query(q, (err, data) => {
+    if (err) return console.log(err);
+    console.log(data);
+    return res.json(data);
+  });
+});
+
 app.post("/ranking/:points", (req, res) => {
   const q = "INSERT INTO PONTUACAO(`pontos`) VALUES (?)";
   const points = req.params.points;

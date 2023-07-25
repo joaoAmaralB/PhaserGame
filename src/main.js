@@ -8,6 +8,7 @@ import GameUi from './scenes/GameUI'
 import InitialScene from './scenes/InitialScene'
 import PointsScene from './scenes/PointsScene'
 import DeathScene from './scenes/DeathScene'
+import WinnerScene from './scenes/WinnerScene'
 
 
 
@@ -23,7 +24,7 @@ export default new Phaser.Game({
 			debug: true
 		},
 	},
-	scene: [Preloader, InitialScene, PointsScene, LevelOne, LevelTwo, FinalLevel, GameUi, DeathScene],
+	scene: [Preloader, InitialScene, PointsScene, LevelOne, LevelTwo, FinalLevel, GameUi, DeathScene, WinnerScene],
 	scale: {
 		zoom: 2
 	}

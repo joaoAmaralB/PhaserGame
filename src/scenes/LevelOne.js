@@ -88,7 +88,14 @@ export default class LevelOne extends Phaser.Scene {
     this.dinos.get(458, 108, "dino");
     this.dinos.get(408, 108, "dino");
     this.dinos.get(408, 208, "dino");
+    this.dinos.get(320, 158, "dino");
+    this.dinos.get(308, 208, "dino");
+    this.dinos.get(328, 58, "dino");
+    this.dinos.get(160, 228, "dino");
     this.orcs.get(608, 108, "orc");
+    this.orcs.get(160, 108, "orc");
+    this.dinos.get(628, 128, "dino");
+    this.dinos.get(688, 138, "dino");
     this.slugs.get(608, 308, "slug");
     this.slugs.get(658, 378, "slug");
 

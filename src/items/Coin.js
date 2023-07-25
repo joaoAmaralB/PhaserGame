@@ -8,7 +8,7 @@ export default class Coin extends Phaser.Physics.Arcade.Sprite {
 
     this.anims.play("coin_anim");
 
-    this.value = Math.round(Math.random() * 100);
+    this.value = Math.round(Math.random() * 50);
 
     scene.physics.world.enable(this);
     scene.add.existing(this);

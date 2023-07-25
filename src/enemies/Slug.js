@@ -8,7 +8,7 @@ const HealthState = {
 export default class Slug extends Phaser.Physics.Arcade.Sprite {
   healthState = HealthState.IDLE;
   damageTime = 0;
-  health = 3;
+  health = 2;
 
   constructor(scene, x, y, texture, frame) {
     super(scene, x, y, texture, frame);

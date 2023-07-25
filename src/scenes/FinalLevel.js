@@ -22,6 +22,7 @@ export default class LevelOne extends Phaser.Scene {
   playerHealth;
   playerSpeed;
   projectileDamage;
+  coinsCollected = 0;
 
   playerEnemiesCollider;
 
@@ -163,6 +164,21 @@ export default class LevelOne extends Phaser.Scene {
       undefined,
       this
     );
+
+    this.physics.add.overlap(
+      this.player,
+      this.coins,
+      this.handlePlayerCoinsOverlap,
+      undefined,
+      this
+    );
+  }
+
+  handlePlayerCoinsOverlap(player, coin) {
+    coin.destroy(true);
+    player.coins += coin.value;
+    sceneEvents.emit("player-coins-changed", player.coins);
+    this.coinsCollected++;
   }
 
   handleProjectileWallsCollision(projectile) {
@@ -220,8 +236,17 @@ export default class LevelOne extends Phaser.Scene {
   update(t, dt) {
     this.player.update(this.cursors);
 
-    EnemyFollowPlayer(this.bigDemon, this.player, this, 30, 200);
-    EnemyFollowPlayer(this.midDemons, this.player, this, 40, 200);
+    if (this.coinsCollected == 4) {
+      this.time.delayedCall(300, () => {
+        this.player.postPoints(this.player.coins);
+        this.data.set("coins", this.player.coins);
+        this.scene.stop('game-ui')
+        this.scene.start("winner-scene", this.data);
+      });
+    }
+
+    EnemyFollowPlayer(this.bigDemon, this.player, this, 60, 200);
+    EnemyFollowPlayer(this.midDemons, this.player, this, 50, 200);
     EnemyFollowPlayer(this.miniDemons, this.player, this, 45, 200);
   }
 }

@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import { sceneEvents } from "../events/EventsCenter";
 import axios from "axios";
+import { sceneEvents } from "../events/EventsCenter";
 
 const HealthState = {
   IDLE: "IDLE",
@@ -9,7 +9,7 @@ const HealthState = {
   SHOOTING: "SHOOTING",
   HEAL: "HEAL",
   SPEED: "SPEED",
-  DAMAGE_INCREASE: "DAMAGE_INCREASE"
+  DAMAGE_INCREASE: "DAMAGE_INCREASE",
 };
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
@@ -39,10 +39,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       },
       this
     );
+
+    this.on(
+      Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + "player_death",
+      function () {
+        sceneEvents.emit("player-death");
+      },
+      this
+    );
   }
 
   async postPoints(coins) {
-    axios.post('', coins);
+    await axios.post(`http://localhost:8800/ranking/${coins}`);
   }
 
   setProjectile(projectile) {
@@ -50,7 +58,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   handleDamageIncrease() {
-    this.setTint(0xEF8E38);
+    this.setTint(0xef8e38);
 
     this.healthState = HealthState.DAMAGE_INCREASE;
     this.damageTime = 0;
@@ -59,7 +67,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   handleSpeed() {
     this.speed += 20;
 
-    this.setTint(0xFBF24B);
+    this.setTint(0xfbf24b);
 
     this.healthState = HealthState.SPEED;
     this.damageTime = 0;
@@ -67,12 +75,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   handleHeal(heal) {
     if (this.health > 9) {
-      this.health = 9
-    }
-    else {
+      this.health = 9;
+    } else {
       this.health += heal;
     }
-    
+
     this.setTint(0x4cfd4c);
 
     this.healthState = HealthState.HEAL;
@@ -93,35 +100,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.healthState = HealthState.DEAD;
       this.scene.cameras.main.zoomTo(1.5, 100);
       this.anims.play("player_death");
-
-      this.darkOverlay = this.scene.add.rectangle(
-        0,
-        0,
-        Number(this.scene.cameras.main.width),
-        Number(this.scene.cameras.main.height),
-        0x000000
-      );
-      this.darkOverlay.setOrigin(0);
-      this.darkOverlay.setAlpha(0); // Defina a transparência inicialmente como 0
-
-      // Crie um texto para exibir a mensagem de reinício
-      this.restartText = this.scene.add.text(
-        Number(this.scene.cameras.main.width) / 2 + 10,
-        Number(this.scene.cameras.main.height) / 2,
-        "REINICAR JOGO",
-        {
-          fontSize: "12px",
-          color: "#ffffff",
-        }
-      ).setInteractive().on('pointerdown', () => {
-        sceneEvents.emit('restart-level');
-      });
-      this.restartText.setOrigin(0.5);
-      this.restartText.setVisible(false);
-      sceneEvents.emit("player-death");
-
-      this.postPoints(this.coins)
-      return;
+      this.postPoints(this.coins);
     }
 
     this.setVelocity(dir.x, dir.y);
@@ -174,32 +153,32 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
         break;
 
-        case HealthState.SPEED:
-          this.damageTime += dt;
-          if (this.damageTime > 400) {
-            this.healthState = HealthState.IDLE;
-            this.setTint(0xffffff);
-          }
-          break;
-
-        case HealthState.DAMAGE_INCREASE:
-          this.damageTime += dt;
-          if (this.damageTime > 400) {
-            this.healthState = HealthState.IDLE;
-            this.setTint(0xffffff);
-          }
+      case HealthState.SPEED:
+        this.damageTime += dt;
+        if (this.damageTime > 400) {
+          this.healthState = HealthState.IDLE;
+          this.setTint(0xffffff);
+        }
         break;
 
-        case HealthState.SHOOTING:
-          this.anims.play("player_shoot", true);
-          this.setVelocity(0, 0);
-          this.shootProjectile();
+      case HealthState.DAMAGE_INCREASE:
+        this.damageTime += dt;
+        if (this.damageTime > 400) {
           this.healthState = HealthState.IDLE;
+          this.setTint(0xffffff);
+        }
+        break;
+
+      case HealthState.SHOOTING:
+        this.anims.play("player_shoot", true);
+        this.setVelocity(0, 0);
+        this.shootProjectile();
+        this.healthState = HealthState.IDLE;
     }
   }
 
   update(cursors) {
-    console.log('player-update')
+    console.log("player-update");
 
     if (
       this.healthState === HealthState.DAMAGE ||

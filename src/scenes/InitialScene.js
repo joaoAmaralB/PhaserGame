@@ -1,14 +1,25 @@
 export default class InitialScene extends Phaser.Scene {
-    constructor() {
-        super('inital-scene')
-    }
+  constructor() {
+    super("initial-scene");
+  }
 
-    create() {
-        const x = 200
-        const y = 50
-        this.add.text(x, y, 'Phaser Game')
+  create() {
+    const x = 100;
+    const y = 100;
+    this.add.text(x, y - 50, "PHASER GAME", { fontSize: 32 });
 
+    this.add
+      .text(x + 75, y + 50, "PLAY")
+      .setInteractive()
+      .on("pointerdown", () => {
+        this.scene.start("lvl-one");
+      });
 
-        this.add.text(x, y, 'Ver pontuações anteriores')
-    }
+    this.add
+      .text(x + 16, y + 100, "YOUR OTHER SCORES")
+      .setInteractive()
+      .on("pointerdown", () => {
+        this.scene.start("points-scene");
+      });
+  }
 }

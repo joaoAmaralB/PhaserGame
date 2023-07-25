@@ -28,6 +28,11 @@ export default class LevelOne extends Phaser.Scene {
 
   constructor() {
     super("lvl-one");
+
+    sceneEvents.on("player-death", () => {
+      this.scene.stop('game-ui')
+      this.scene.start('death-scene')
+    });
   }
 
   preload() {
@@ -36,10 +41,6 @@ export default class LevelOne extends Phaser.Scene {
 
   create() {
     this.scene.run("game-ui");
-
-    sceneEvents.on("restart-level", () => {
-      this.scene.restart();
-    });
 
     createCoinAnims(this.anims);
     createPlayerAnims(this.anims);
@@ -169,19 +170,6 @@ export default class LevelOne extends Phaser.Scene {
     );
 
     this.cameras.main.startFollow(this.player, true);
-
-    sceneEvents.on("player-death", () => {
-      // Escureça a tela gradualmente ao longo de 1 segundo
-      this.tweens.add({
-        targets: this.player.darkOverlay,
-        alpha: 0.7,
-        duration: 1000,
-        onComplete: () => {
-          // Quando a tela estiver completamente escura, após 1 segundo, exiba o texto de reinício
-          this.player.restartText.setVisible(true);
-        },
-      });
-    });
   }
 
   handlePlayerPotionCollide(player, potion) {

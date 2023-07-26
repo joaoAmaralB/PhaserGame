@@ -16,6 +16,13 @@ export default class InitialScene extends Phaser.Scene {
       });
 
     this.add
+      .text(x + 40, y + 150, "HOW TO PLAY")
+      .setInteractive()
+      .on("pointerdown", () => {
+        this.scene.start("how-to-play");
+      });
+
+    this.add
       .text(x + 16, y + 100, "YOUR OTHER SCORES")
       .setInteractive()
       .on("pointerdown", () => {
